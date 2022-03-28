@@ -4,7 +4,7 @@ from github import Github, GithubIntegration
 
 app = Flask(__name__)
 
-app_id = '<your_app_number_here>'
+app_id = 184673
 
 # Read the bot certificate
 with open(
