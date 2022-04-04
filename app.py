@@ -42,7 +42,7 @@ def pr_accepted_event(repo, payload):
     pr.add_to_labels("needs review")
 
     pullrequest_branch = payload['pull_request']['head']['ref']
-    branch = repo.get_git_ref(pullrequest_branch)
+    branch = repo.get_git_ref(f"heads/{pullrequest_branch}")
     branch.delete()
 
 @app.route("/", methods=['POST'])
