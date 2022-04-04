@@ -4,8 +4,8 @@ from github import Github, GithubIntegration
 
 app = Flask(__name__)
 
-app_id = '<your_app_number_here>'
-
+app_id = 184673
+print(app_id)
 # Read the bot certificate
 with open(
         os.path.normpath(os.path.expanduser('bot_key.pem')),
@@ -31,6 +31,20 @@ def pr_opened_event(repo, payload):
         pr.create_comment(f"{response}")
         pr.add_to_labels("needs review")
 
+def pr_accepted_event(repo, payload):
+    pr = repo.get_issue(number=payload['pull_request']['number'])
+    author = pr.user.login
+
+ 
+    response = f"Thanks for this pull request, @{author}! " \
+                f"The repository maintainers merged it! :moyai:"
+    pr.create_comment(f"{response}")
+    pr.add_to_labels("needs review")
+
+    pullrequest_branch = payload['pull_request']['head']['ref']
+    branch = repo.get_git_ref(f"heads/{pullrequest_branch}")
+    branch.delete()
+
 @app.route("/", methods=['POST'])
 def bot():
     payload = request.json
@@ -51,6 +65,10 @@ def bot():
     # Check if the event is a GitHub pull request creation event
     if all(k in payload.keys() for k in ['action', 'pull_request']) and payload['action'] == 'opened':
         pr_opened_event(repo, payload)
+
+    if all(k in payload.keys() for k in ['action', 'pull_request']) and payload['pull_request']['merged']:
+        pr_accepted_event(repo, payload)
+
 
     return "", 204
 
