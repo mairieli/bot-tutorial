@@ -37,9 +37,13 @@ def pr_accepted_event(repo, payload):
 
  
     response = f"Thanks for this pull request, @{author}! " \
-                f"The repository maintainers accepted it! :moyai:"
+                f"The repository maintainers merged it! :moyai:"
     pr.create_comment(f"{response}")
     pr.add_to_labels("needs review")
+
+    pullrequest_branch = payload['pull_request']['head']['ref']
+    branch = repo.get_git_ref(pullrequest_branch)
+    branch.delete()
 
 @app.route("/", methods=['POST'])
 def bot():
