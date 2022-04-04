@@ -31,6 +31,16 @@ def pr_opened_event(repo, payload):
         pr.create_comment(f"{response}")
         pr.add_to_labels("needs review")
 
+def pr_accepted_event(repo, payload):
+    pr = repo.get_issue(number=payload['pull_request']['number'])
+    author = pr.user.login
+
+ 
+    response = f"Thanks for this pull request, @{author}! " \
+                f"The repository maintainers accepted it! :moyai:"
+    pr.create_comment(f"{response}")
+    pr.add_to_labels("needs review")
+
 @app.route("/", methods=['POST'])
 def bot():
     payload = request.json
@@ -51,6 +61,10 @@ def bot():
     # Check if the event is a GitHub pull request creation event
     if all(k in payload.keys() for k in ['action', 'pull_request']) and payload['action'] == 'opened':
         pr_opened_event(repo, payload)
+
+    if all(k in payload.keys() for k in ['action', 'pull_request']) and payload['pull_request']['merged']:
+        pr_accepted_event(repo, payload)
+
 
     return "", 204
 
